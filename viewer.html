@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>FindAR</title>
+
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    /* 背景色は指定しない：AR.jsのカメラ映像(z-index:-2)をそのまま見せるため */
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+  }
+  a-scene canvas {
+    background: transparent !important;
+  }
+
+  #start-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #05050a; color: #eae6ff; text-align: center; padding: 24px;
+  }
+  .logo {
+    width: min(320px, 80vw);
+    height: auto;
+    margin: 0 auto 20px;
+    display: block;
+  }
+  #start-overlay p { font-size: 13px; opacity: 0.6; margin: 0 0 28px; line-height: 1.6; }
+  #start-button {
+    padding: 14px 36px; border-radius: 999px; border: 1px solid #8f7bffaa;
+    background: #6f5bff22; color: #eae6ff; font-size: 15px; letter-spacing: 0.05em;
+  }
+  #start-button:active { background: #6f5bff44; }
+
+  #status-bar {
+    position: fixed; top: env(safe-area-inset-top, 12px); left: 0; right: 0;
+    z-index: 500; text-align: center; color: #eae6ffcc; font-size: 12px;
+    letter-spacing: 0.05em; pointer-events: none; text-shadow: 0 1px 4px #000;
+  }
+  #distance-display {
+    position: fixed; bottom: env(safe-area-inset-bottom, 16px); left: 0; right: 0;
+    z-index: 500; text-align: center; color: #eae6ffcc; font-size: 14px;
+    font-weight: 600; letter-spacing: 0.05em; pointer-events: none; text-shadow: 0 1px 4px #000;
+  }
+</style>
+</head>
+<body>
+
+<div id="start-overlay">
+  <img src="FindAR_logo_w.png" alt="FindAR" class="logo">
+  <p>相手のいる場所にホログラムが表示されます。<br>カメラと位置情報の使用を許可してください。</p>
+  <button id="start-button">ARを開始</button>
+</div>
+
+<div id="status-bar"></div>
+<div id="distance-display"></div>
+
+<!-- GPS ARに必要な最小構成。ホログラム用エンティティは実際の座標が判明してから動的に生成する -->
+<a-scene
+  id="findar-scene"
+  vr-mode-ui="enabled: false"
+  embedded
+  arjs="sourceType: webcam; debugUIEnabled: false;"
+  renderer="alpha: true; antialias: true; colorManagement: true;"
+>
+  <a-camera gps-new-camera="gpsMinDistance: 5;"></a-camera>
+</a-scene>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { initializeAppCheck, ReCaptchaV3Provider }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js';
+
+// ════════════════════════════════════════════════
+// TODO: index.html と同じFirebaseプロジェクトの設定値に置き換えてください
+// ════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyByb6EuWZ9Iy9QiR0Nw6IWRb8O_JQqpMSc",
+  authDomain: "findar-ae099.firebaseapp.com",
+  databaseURL: "https://findar-ae099-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "findar-ae099",
+  storageBucket: "findar-ae099.firebasestorage.app",
+  messagingSenderId: "1043165089164",
+  appId: "1:1043165089164:web:0db15bfbef3d85d8df1aa9",
+  measurementId: "G-J7H2LC9FFS"
+};
+
+const app = initializeApp(firebaseConfig);
+
+// TODO: サイトキー(シークレットキーではない方)に置き換えてください
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('Y6LeQYFItAAAAAGaVvZx_Txa8M26qytXHou4ZXmqk'),
+  isTokenAutoRefreshEnabled: true
+});
+
+const db = getFirestore(app);
+
+// ════════════════════════════════════════════════
+// URLの ?id=xxxx を使ってFirestoreから送信者の位置情報を取得する
+// ════════════════════════════════════════════════
+async function fetchTargetLocationFromFirebase() {
+  const params = new URLSearchParams(location.search);
+  const meetupId = params.get('id');
+  if (!meetupId) {
+    return { lat: NaN, lng: NaN };
+  }
+  try {
+    const snap = await getDoc(doc(db, 'meetups', meetupId));
+    if (!snap.exists()) {
+      return { lat: NaN, lng: NaN };
+    }
+    const data = snap.data();
+    return { lat: data.lat, lng: data.lng };
+  } catch (err) {
+    console.error('[FindAR] Firestore取得エラー:', err);
+    return { lat: NaN, lng: NaN };
+  }
+}
+
+// ════════════════════════════════════════════════
+// 出現アニメーション：1回再生 → 完了イベント発火
+// ════════════════════════════════════════════════
+AFRAME.registerComponent('gltf-animation-once', {
+  init: function () {
+    this.mixer = null;
+    this.el.addEventListener('model-loaded', (e) => {
+      const THREE = AFRAME.THREE;
+      const model = e.detail.model;
+      const clips = model.animations;
+      if (!clips || !clips.length) {
+        console.warn('[FindAR] appearアニメーションが見つかりません:', this.el.id);
+        return;
+      }
+      this.mixer = new THREE.AnimationMixer(model);
+      const action = this.mixer.clipAction(clips[0]);
+      action.setLoop(THREE.LoopOnce);
+      action.clampWhenFinished = true;
+      action.play();
+
+      this.mixer.addEventListener('finished', () => {
+        this.el.emit('findar-sequence-finished', null, false);
+      });
+    });
+  },
+  tick: function (t, dt) {
+    if (this.mixer) this.mixer.update(dt / 1000);
+  }
+});
+
+// ════════════════════════════════════════════════
+// ループアニメーション：元クリップの[startFrame, endFrame]区間だけを
+// 0起点に切り出して無限ループ再生する
+// ════════════════════════════════════════════════
+AFRAME.registerComponent('gltf-animation-loop-trimmed', {
+  schema: {
+    startFrame: { type: 'number', default: 28 },
+    endFrame:   { type: 'number', default: 90 },
+    fps:        { type: 'number', default: 24 }
+  },
+  init: function () {
+    this.mixer = null;
+    this.el.addEventListener('model-loaded', (e) => {
+      const THREE = AFRAME.THREE;
+      const model = e.detail.model;
+      const clips = model.animations;
+      if (!clips || !clips.length) {
+        console.warn('[FindAR] loopアニメーションが見つかりません:', this.el.id);
+        return;
+      }
+      const trimmed = THREE.AnimationUtils.subclip(
+        clips[0], 'findar_loop_trimmed',
+        this.data.startFrame, this.data.endFrame, this.data.fps
+      );
+      this.mixer = new THREE.AnimationMixer(model);
+      const action = this.mixer.clipAction(trimmed);
+      action.setLoop(THREE.LoopRepeat, Infinity);
+      action.play();
+    });
+  },
+  tick: function (t, dt) {
+    if (this.mixer) this.mixer.update(dt / 1000);
+  }
+});
+
+// ════════════════════════════════════════════════
+// 距離に応じたスケール調整 + 画面下部への距離表示
+// ════════════════════════════════════════════════
+AFRAME.registerComponent('gps-distance-scale', {
+  schema: {
+    minScale: { type: 'number', default: 0.3 },
+    maxScale: { type: 'number', default: 8 },
+    factor:   { type: 'number', default: 0.08 }
+  },
+  init: function () {
+    this.cameraEl = document.querySelector('a-camera');
+  },
+  tick: function () {
+    if (!this.cameraEl || !this.cameraEl.object3D) return;
+    const distance = this.cameraEl.object3D.position.distanceTo(this.el.object3D.position);
+    let scale = distance * this.data.factor;
+    scale = Math.max(this.data.minScale, Math.min(this.data.maxScale, scale));
+    this.el.object3D.scale.setScalar(scale);
+
+    if (this.el.getAttribute('visible')) {
+      const displayEl = document.getElementById('distance-display');
+      if (displayEl) displayEl.textContent = `対象まで: 約${distance.toFixed(1)}m`;
+    }
+  }
+});
+
+// ════════════════════════════════════════════════
+// エンティティを「正しい座標が判明してから」動的に生成する
+// (0,0などの誤った座標での初期化を避けるための対策)
+// ════════════════════════════════════════════════
+function createFindAREntities(lat, lng) {
+  const sceneEl = document.getElementById('findar-scene');
+
+  const appearEl = document.createElement('a-entity');
+  appearEl.setAttribute('id', 'findar-appear');
+  appearEl.setAttribute('gltf-model', 'url(./FindAR_appear.glb)');
+  appearEl.setAttribute('gltf-animation-once', '');
+  appearEl.setAttribute('gps-distance-scale', '');
+  appearEl.setAttribute('gps-new-entity-place', `latitude: ${lat}; longitude: ${lng};`);
+  appearEl.setAttribute('visible', 'true');
+
+  const loopEl = document.createElement('a-entity');
+  loopEl.setAttribute('id', 'findar-loop');
+  loopEl.setAttribute('gltf-model', 'url(./FindAR_loop.glb)');
+  loopEl.setAttribute('gltf-animation-loop-trimmed', 'startFrame: 28; endFrame: 90; fps: 24');
+  loopEl.setAttribute('gps-distance-scale', '');
+  loopEl.setAttribute('gps-new-entity-place', `latitude: ${lat}; longitude: ${lng};`);
+  loopEl.setAttribute('visible', 'false');
+
+  appearEl.addEventListener('model-loaded', () => {
+    console.log('[FindAR] ⑧ appearモデルの読み込み完了');
+  });
+  loopEl.addEventListener('model-loaded', () => {
+    console.log('[FindAR] ⑨ loopモデルの読み込み完了');
+  });
+
+  appearEl.addEventListener('findar-sequence-finished', () => {
+    appearEl.setAttribute('visible', false);
+    loopEl.setAttribute('visible', true);
+  });
+
+  sceneEl.appendChild(appearEl);
+  sceneEl.appendChild(loopEl);
+}
+
+// ════════════════════════════════════════════════
+// 起動フロー：各ステップでログを出し、どこまで進んだか特定できるようにする
+// ════════════════════════════════════════════════
+const startOverlay = document.getElementById('start-overlay');
+const startButton = document.getElementById('start-button');
+const statusBar = document.getElementById('status-bar');
+const sceneEl = document.getElementById('findar-scene');
+
+startButton.addEventListener('click', async () => {
+  console.log('[FindAR] ① ボタンがタップされました');
+  statusBar.textContent = '位置情報を取得中...';
+
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try {
+      const permission = await DeviceOrientationEvent.requestPermission();
+      console.log('[FindAR] ② モーションセンサー許可結果:', permission);
+      if (permission !== 'granted') {
+        statusBar.textContent = 'モーションセンサーの許可が必要です';
+        return;
+      }
+    } catch (err) {
+      console.error('[FindAR] ② モーションセンサー許可でエラー:', err);
+    }
+  } else {
+    console.log('[FindAR] ② モーションセンサー許可は不要な端末です');
+  }
+
+  console.log('[FindAR] ③ Firestoreから位置情報を取得します');
+  const target = await fetchTargetLocationFromFirebase();
+  console.log('[FindAR] ④ Firestore取得結果:', target);
+
+  if (isNaN(target.lat) || isNaN(target.lng)) {
+    console.log('[FindAR] ④-1 座標が不正なため中断');
+    statusBar.textContent = '相手の位置情報を取得できませんでした';
+    return;
+  }
+
+  console.log('[FindAR] ⑤ エンティティを生成します:', target.lat, target.lng);
+  console.log('[FindAR] ⑤-1 gps-new-cameraコンポーネントの存在確認:', !!AFRAME.components['gps-new-camera']);
+  console.log('[FindAR] ⑤-2 gps-new-entity-placeコンポーネントの存在確認:', !!AFRAME.components['gps-new-entity-place']);
+
+  navigator.geolocation.getCurrentPosition(
+  (pos) => {
+    console.log('[FindAR診断] ARを開始した時点の自分のGPS:', pos.coords.latitude, pos.coords.longitude, '精度(m):', pos.coords.accuracy);
+  },
+  (err) => {
+    console.log('[FindAR診断] 自分のGPS取得失敗:', err.code, err.message);
+  },
+  { enableHighAccuracy: true, timeout: 15000 }
+);
+
+  createFindAREntities(target.lat, target.lng);
+  console.log('[FindAR] ⑥ エンティティ生成完了');
+
+  startOverlay.style.display = 'none';
+  setTimeout(() => {
+  const cameraEl = document.querySelector('a-camera');
+  console.log('[FindAR診断] 5秒後のカメラ自身のGPS状態:', cameraEl.components['gps-new-camera']);
+}, 5000);
+  statusBar.textContent = '';
+  console.log('[FindAR] ⑦ オーバーレイを閉じました');
+});
+</script>
+</body>
+</html>
