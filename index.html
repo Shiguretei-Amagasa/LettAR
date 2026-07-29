@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Happy New Year AR</title>
+
+    <!-- スマホ対応 -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+
+    <!-- MindAR (画像トラッキング) -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <!-- anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <!-- opentype.js -->
+    <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- JavaScript -->
+    <script src="js/audio.js"></script>
+    <script src="js/light.js"></script>
+    <script src="js/text.js"></script>
+    <script src="js/confetti.js"></script>
+    <script src="js/main.js"></script>
+
+</head>
+
+<body style="margin:0; overflow:hidden;">
+
+<!-- ================================================
+     デバッグ用スタートボタン
+     通常は非表示。URLに ?debug=1 を付けた時だけ表示され、
+     Hiroマーカーなしで演出シーケンスをテストできる
+================================================= -->
+
+<button
+
+    id="debugStartBtn"
+
+    class="debug"
+
+    style="position:fixed;
+           bottom:24px;
+           left:50%;
+           transform:translateX(-50%);
+           z-index:2000;
+           padding:14px 28px;
+           font-size:16px;
+           border:none;
+           border-radius:999px;
+           background:#FFD700;
+           color:#000;
+           font-weight:bold;">
+
+    ▶ テスト再生
+
+</button>
+
+<a-scene
+
+    embedded
+    mindar-image="imageTargetSrc: assets/targets/target.mind?v=3; autoStart:true; filterMinCF:0.001; filterBeta:0.01;"
+    renderer="alpha:true; logarithmicDepthBuffer:true; colorManagement:true;"
+    vr-mode-ui="enabled:false">
+
+    <!--=========================
+            Assets
+    ==========================-->
+
+    <a-assets>
+
+        <!-- 効果音 -->
+
+        <!-- ①光が走る演出 -->
+        <audio id="kiranSound" src="assets/audio/kiran.mp3"></audio>
+
+        <!-- ②文字(Happy/New/Year!)登場 -->
+        <audio id="kotsuzumiSound" src="assets/audio/kodutumi.mp3"></audio>
+
+        <!-- ③門松登場 -->
+        <audio id="kadomatsuSound" src="assets/audio/pop.mp3"></audio>
+
+        <!-- ④Year!表示完了 -->
+        <audio id="taikoSound" src="assets/audio/wadaiko.mp3"></audio>
+
+        <!-- 音声ナレーション(Happy New Year!の文字表示と同時に再生) -->
+        <audio id="voiceSound" src="assets/audio/happynewyear.m4a"></audio>
+
+    </a-assets>
+
+
+    <!--=========================
+           Image Target
+           (年賀状の絵柄を認識対象にする。
+            assets/targets/newyear.mind に
+            コンパイルした結果を差し替える)
+    ==========================-->
+
+    <a-entity
+
+        id="markerRoot"
+
+        mindar-image-target="targetIndex: 0">
+
+        <!--=====================
+            光エフェクト
+        ======================-->
+
+        <a-plane
+
+            id="light"
+
+            position="-0.4 -0.4 0.02"
+
+            rotation="0 0 0"
+
+            width="0.8"
+
+            height="0.05"
+
+            material="shader:flat;
+                      color:#FFD700;
+                      transparent:true;
+                      opacity:0;">
+
+        </a-plane>
+
+
+        <!--=====================
+           3Dテキストの親
+           (text.js が Happy / New / Year!
+            の3メッシュをここに追加する)
+        ======================-->
+
+        <a-entity
+
+            id="textRoot"
+
+            position="0 0.1 0.05">
+
+        </a-entity>
+
+
+        <!--=====================
+           紙吹雪を生成する親
+        ======================-->
+
+        <a-entity
+
+            id="confettiRoot"
+
+            position="0 0 0.03">
+
+        </a-entity>
+
+    </a-entity>
+
+
+    <!--=========================
+            Camera
+    ==========================-->
+
+    <a-camera
+
+        position="0 0 0"
+
+        look-controls="enabled: false"></a-camera>
+
+</a-scene>
+
+</body>
+
+</html>
