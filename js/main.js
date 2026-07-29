@@ -12,6 +12,16 @@
 
 let animationStarted = false;
 
+//------------------------------------------------------
+// ★検証用フラグ
+// true にすると、ターゲット検出時に演出(text/light/confetti)を
+// 一切呼ばず、音を1つ鳴らすだけになる。
+// カメラ映像・MindAR自体が正しく動いているかどうかだけを
+// 切り分けるためのモード。確認できたら false に戻す。
+//------------------------------------------------------
+
+const TEST_MODE_AUDIO_ONLY = true;
+
 
 /* ==========================================================
    Initialize
@@ -44,6 +54,16 @@ window.addEventListener("DOMContentLoaded", () => {
         animationStarted = true;
 
         console.log("Target Found");
+
+        if (TEST_MODE_AUDIO_ONLY) {
+
+            console.log("[TEST_MODE] 音のみ再生します");
+
+            playKiran();
+
+            return;
+
+        }
 
         startAnimation();
 
@@ -125,6 +145,16 @@ function setupDebugButton() {
         animationStarted = false;
 
         animationStarted = true;
+
+        if (TEST_MODE_AUDIO_ONLY) {
+
+            console.log("[TEST_MODE] 音のみ再生します");
+
+            playKiran();
+
+            return;
+
+        }
 
         startAnimation();
 
