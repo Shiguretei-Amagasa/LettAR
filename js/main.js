@@ -13,14 +13,20 @@
 let animationStarted = false;
 
 //------------------------------------------------------
-// ★検証用フラグ
-// true にすると、ターゲット検出時に演出(text/light/confetti)を
-// 一切呼ばず、音を1つ鳴らすだけになる。
-// カメラ映像・MindAR自体が正しく動いているかどうかだけを
-// 切り分けるためのモード。確認できたら false に戻す。
+// ★検証用フラグ(段階テスト)
+// 0: 何もしない。targetFoundが発火したことをconsole.logで
+//    確認するだけ。カメラ/MindAR自体の動作確認専用。
+// 1: 音(kiran)のみ
+// 2: 音+光
+// 3: 音+光+3D文字(Happy/New/Year!)+ナレーション+和太鼓
+// 4: 上記+紙吹雪
+// 5: 上記+門松(フル。最終的な本番相当)
+//
+// 数字を1つずつ上げながら、どの段階で問題が起きるかを
+// 切り分けるためのもの。本番はここを5にしておく。
 //------------------------------------------------------
 
-const TEST_MODE_AUDIO_ONLY = true;
+const TEST_STAGE = 0;
 
 
 /* ==========================================================
@@ -53,19 +59,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
         animationStarted = true;
 
-        console.log("Target Found");
+        console.log("Target Found (TEST_STAGE=" + TEST_STAGE + ")");
 
-        if (TEST_MODE_AUDIO_ONLY) {
-
-            console.log("[TEST_MODE] 音のみ再生します");
-
-            playKiran();
-
-            return;
-
-        }
-
-        startAnimation();
+        runStagedSequence();
 
     });
 
@@ -146,17 +142,9 @@ function setupDebugButton() {
 
         animationStarted = true;
 
-        if (TEST_MODE_AUDIO_ONLY) {
+        console.log("Debug Start (TEST_STAGE=" + TEST_STAGE + ")");
 
-            console.log("[TEST_MODE] 音のみ再生します");
-
-            playKiran();
-
-            return;
-
-        }
-
-        startAnimation();
+        runStagedSequence();
 
     });
 
@@ -167,15 +155,29 @@ function setupDebugButton() {
    Animation Sequence
 ========================================================== */
 
-async function startAnimation() {
+/* ==========================================================
+   Staged Sequence Runner
+
+   TEST_STAGE=0: 何もしない(targetFoundのログのみ。
+                 カメラ/MindAR自体の動作確認専用)
+   TEST_STAGE=1: 音(kiran)のみ
+   TEST_STAGE=2: 音+光
+   TEST_STAGE=3: +3D文字(Happy/New/Year!)+ナレーション+和太鼓
+   TEST_STAGE=4: +紙吹雪
+   TEST_STAGE=5: +門松(フル。本番相当)
+========================================================== */
+
+async function runStagedSequence() {
+
+    if (TEST_STAGE <= 0) {
+
+        console.log("[STAGE0] カメラ/認識の確認のみ。演出は呼びません。");
+
+        return;
+
+    }
 
     console.log("Animation Start");
-
-    //------------------------------------------------------
-    // STEP 0
-    // フォント/3Dテキスト構築の完了待ち
-    // (通信が遅い環境でマーカーが先に見つかった場合の対策)
-    //------------------------------------------------------
 
     if (typeof waitForTextReady === "function") {
 
@@ -184,19 +186,23 @@ async function startAnimation() {
     }
 
     //------------------------------------------------------
-    // STEP 1
-    // 光
+    // STAGE 1: 光が走る演出の音 + 光
     //------------------------------------------------------
 
     playKiran();
 
     playLight();
 
+    if (TEST_STAGE <= 1) {
+
+        return;
+
+    }
+
     await wait(1000);
 
     //------------------------------------------------------
-    // STEP 2
-    // Happy
+    // STAGE 2以上: Happy / New / Year!
     //------------------------------------------------------
 
     showHappy();
@@ -207,21 +213,11 @@ async function startAnimation() {
 
     await wait(900);
 
-    //------------------------------------------------------
-    // STEP 3
-    // New
-    //------------------------------------------------------
-
     showNew();
 
     playKotsuzumi();
 
     await wait(900);
-
-    //------------------------------------------------------
-    // STEP 4
-    // Year!
-    //------------------------------------------------------
 
     showYear();
 
@@ -229,27 +225,32 @@ async function startAnimation() {
 
     await wait(1200);
 
-    //------------------------------------------------------
-    // STEP 5
-    // 和太鼓
-    //------------------------------------------------------
-
     playTaiko();
+
+    if (TEST_STAGE <= 2) {
+
+        return;
+
+    }
 
     await wait(300);
 
     //------------------------------------------------------
-    // STEP 6
-    // 紙吹雪
+    // STAGE 3以上: 紙吹雪
     //------------------------------------------------------
 
     startConfetti();
 
+    if (TEST_STAGE <= 3) {
+
+        return;
+
+    }
+
     await wait(400);
 
     //------------------------------------------------------
-    // STEP 7
-    // 門松
+    // STAGE 4以上: 門松
     //------------------------------------------------------
 
     playKadomatsu();
@@ -257,11 +258,6 @@ async function startAnimation() {
     showKadomatsu();
 
     await wait(1200);
-
-    //------------------------------------------------------
-    // STEP 8
-    // 将来
-    //------------------------------------------------------
 
     if (typeof showPerson === "function") {
 
