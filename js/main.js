@@ -12,6 +12,8 @@
 
 let animationStarted = false;
 
+let awaitingTap = false;
+
 //------------------------------------------------------
 // ★検証用フラグ(段階テスト)
 // 0: 何もしない。targetFoundが発火したことをconsole.logで
@@ -51,17 +53,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
     marker.addEventListener("targetFound", () => {
 
-        if (animationStarted) {
+        if (animationStarted || awaitingTap) {
 
             return;
 
         }
 
-        animationStarted = true;
-
         console.log("Target Found (TEST_STAGE=" + TEST_STAGE + ")");
 
-        runStagedSequence();
+        showTapPrompt();
 
     });
 
@@ -84,9 +84,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
         }
 
+        hideTapPrompt();
+
         animationStarted = false;
 
+        awaitingTap = false;
+
     });
+
+    //------------------------------------------------------
+    // タップで演出開始(音声再生の許可もここで得る)
+    //------------------------------------------------------
+
+    document.addEventListener("click", onTapToStart);
+
+    document.addEventListener("touchend", onTapToStart);
 
     //------------------------------------------------------
     // デバッグ起動ボタン
@@ -154,6 +166,79 @@ function setupDebugButton() {
 /* ==========================================================
    Animation Sequence
 ========================================================== */
+
+/* ==========================================================
+   タップ吹き出し
+========================================================== */
+
+function showTapPrompt() {
+
+    awaitingTap = true;
+
+    const prompt = document.querySelector("#tapPrompt");
+
+    if (!prompt) {
+
+        return;
+
+    }
+
+    prompt.setAttribute("visible", true);
+
+    prompt.setAttribute("animation__pop", {
+
+        property: "scale",
+
+        to: "1 1 1",
+
+        dur: 300,
+
+        easing: "easeOutBack"
+
+    });
+
+}
+
+
+function hideTapPrompt() {
+
+    const prompt = document.querySelector("#tapPrompt");
+
+    if (!prompt) {
+
+        return;
+
+    }
+
+    prompt.removeAttribute("animation__pop");
+
+    prompt.setAttribute("scale", "0 0 0");
+
+    prompt.setAttribute("visible", false);
+
+}
+
+
+function onTapToStart() {
+
+    if (!awaitingTap) {
+
+        return;
+
+    }
+
+    awaitingTap = false;
+
+    animationStarted = true;
+
+    hideTapPrompt();
+
+    console.log("Tap To Start");
+
+    runStagedSequence();
+
+}
+
 
 /* ==========================================================
    Staged Sequence Runner
