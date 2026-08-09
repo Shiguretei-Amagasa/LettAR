@@ -60,7 +60,9 @@ const baseMaterial = new THREE.MeshStandardMaterial({
 
     emissive: 0x3d2d00,
 
-    emissiveIntensity: 0.12
+    emissiveIntensity: 0.12,
+
+    side: THREE.DoubleSide
 
 });
 
@@ -368,9 +370,10 @@ function buildWord(word, y) {
 
     );
 
-    mesh.rotation.x = THREE.MathUtils.degToRad(-90);
+    // 年賀状を正面からかざす想定のため、回転なしを基準姿勢とする
+    // (旧値の-90/180度は一度も実機検証されていなかった暫定値だった)
 
-    mesh.rotation.z = THREE.MathUtils.degToRad(180);
+    mesh.rotation.set(0, 0, 0);
 
     //------------------------------------------------------
     // 初期状態(非表示)
@@ -518,7 +521,7 @@ function playWord(mesh) {
 
         THREE.MathUtils.degToRad(
 
-            -105
+            -15
 
         );
 
@@ -614,19 +617,19 @@ function playWord(mesh) {
 
             THREE.MathUtils.degToRad(
 
-                -105
+                -15
 
             ),
 
             THREE.MathUtils.degToRad(
 
-                -84
+                6
 
             ),
 
             THREE.MathUtils.degToRad(
 
-                -90
+                0
 
             )
 
