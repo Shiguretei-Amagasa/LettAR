@@ -295,6 +295,10 @@ function buildWord(word, y) {
     //------------------------------------------------------
 
     const shapes = opentypePathToShapes(path);
+    console.log("WORD:", word);
+    console.log("COMMANDS:", path.commands.length);
+    console.log("SHAPES:", shapes.length);
+    
 
     //------------------------------------------------------
     // Geometry生成
@@ -370,10 +374,12 @@ function buildWord(word, y) {
 
     );
 
-    // 年賀状を正面からかざす想定のため、回転なしを基準姿勢とする
-    // (旧値の-90/180度は一度も実機検証されていなかった暫定値だった)
+//------------------------------------------------------
+// 回転
+//------------------------------------------------------
 
-    mesh.rotation.set(0, 0, 0);
+mesh.rotation.x = THREE.MathUtils.degToRad(-90);
+mesh.rotation.z = THREE.MathUtils.degToRad(180);
 
     //------------------------------------------------------
     // 初期状態(非表示)
