@@ -28,7 +28,7 @@ let awaitingTap = false;
 // 切り分けるためのもの。本番はここを5にしておく。
 //------------------------------------------------------
 
-const TEST_STAGE = 2;
+const TEST_STAGE = 3;
 
 
 /* ==========================================================
@@ -246,7 +246,7 @@ function onTapToStart() {
    TEST_STAGE=0: 何もしない(targetFoundのログのみ。
                  カメラ/MindAR自体の動作確認専用)
    TEST_STAGE=1: 音(kiran)のみ
-   TEST_STAGE=2: 音+光
+   TEST_STAGE=2: (欠番。光の演出は品質判断により削除済み)
    TEST_STAGE=3: +3D文字(Happy/New/Year!)+ナレーション+和太鼓
    TEST_STAGE=4: +紙吹雪
    TEST_STAGE=5: +門松(フル。本番相当)
@@ -283,15 +283,20 @@ async function runStagedSequence() {
     }
 
     //------------------------------------------------------
-    // STAGE 2以上: 光
+    // ※光の演出(playLight)はクオリティ判断により削除。
+    //   STAGE2は欠番。音の余韻として少し間を置いてから文字へ。
     //------------------------------------------------------
 
-    playLight();
+    if (TEST_STAGE <= 2) {
+
+        return;
+
+    }
 
     await wait(1000);
 
     //------------------------------------------------------
-    // STAGE 2以上: Happy / New / Year!
+    // STAGE 3以上: Happy / New / Year!
     //------------------------------------------------------
 
     showHappy();
@@ -316,7 +321,7 @@ async function runStagedSequence() {
 
     playTaiko();
 
-    if (TEST_STAGE <= 2) {
+    if (TEST_STAGE <= 3) {
 
         return;
 
@@ -325,12 +330,12 @@ async function runStagedSequence() {
     await wait(300);
 
     //------------------------------------------------------
-    // STAGE 3以上: 紙吹雪
+    // STAGE 4以上: 紙吹雪
     //------------------------------------------------------
 
     startConfetti();
 
-    if (TEST_STAGE <= 3) {
+    if (TEST_STAGE <= 4) {
 
         return;
 
@@ -339,7 +344,7 @@ async function runStagedSequence() {
     await wait(400);
 
     //------------------------------------------------------
-    // STAGE 4以上: 門松
+    // STAGE 5以上: 門松
     //------------------------------------------------------
 
     playKadomatsu();
