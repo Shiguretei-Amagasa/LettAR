@@ -62,7 +62,21 @@ const baseMaterial = new THREE.MeshStandardMaterial({
 
     emissiveIntensity: 0.12,
 
-    side: THREE.DoubleSide
+    const baseMaterial = new THREE.MeshStandardMaterial({
+
+        color: TEXT_COLOR,
+    
+        metalness: TEXT_METALNESS,
+    
+        roughness: TEXT_ROUGHNESS,
+    
+        envMapIntensity: 1.6,
+    
+        emissive: 0x3d2d00,
+    
+        emissiveIntensity: 0.12
+    
+    });
 
 });
 
