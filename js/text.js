@@ -60,23 +60,7 @@ const baseMaterial = new THREE.MeshStandardMaterial({
 
     emissive: 0x3d2d00,
 
-    emissiveIntensity: 0.12,
-
-    const baseMaterial = new THREE.MeshStandardMaterial({
-
-        color: TEXT_COLOR,
-    
-        metalness: TEXT_METALNESS,
-    
-        roughness: TEXT_ROUGHNESS,
-    
-        envMapIntensity: 1.6,
-    
-        emissive: 0x3d2d00,
-    
-        emissiveIntensity: 0.12
-    
-    });
+    emissiveIntensity: 0.12
 
 });
 
@@ -309,10 +293,6 @@ function buildWord(word, y) {
     //------------------------------------------------------
 
     const shapes = opentypePathToShapes(path);
-    console.log("WORD:", word);
-    console.log("COMMANDS:", path.commands.length);
-    console.log("SHAPES:", shapes.length);
-    
 
     //------------------------------------------------------
     // Geometry生成
@@ -388,12 +368,10 @@ function buildWord(word, y) {
 
     );
 
-//------------------------------------------------------
-// 回転
-//------------------------------------------------------
+    // 年賀状を正面からかざす想定のため、回転なしを基準姿勢とする
+    // (旧値の-90/180度は一度も実機検証されていなかった暫定値だった)
 
-mesh.rotation.x = THREE.MathUtils.degToRad(-90);
-mesh.rotation.z = THREE.MathUtils.degToRad(180);
+    mesh.rotation.set(0, 0, 0);
 
     //------------------------------------------------------
     // 初期状態(非表示)
