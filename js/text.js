@@ -335,9 +335,11 @@ function createLetter(character) {
 
     mesh.receiveShadow = true;
 
-    // 年賀状を正面からかざす想定のため、回転なしを基準姿勢とする
+    // 年賀状を正面からかざす想定。マーカーのローカルY軸が
+    // 画像座標系(下向き正)のため、フォント座標系(上向き正)との
+    // ズレを解消するためX軸を180度回転させる
 
-    mesh.rotation.set(0, 0, 0);
+    mesh.rotation.set(Math.PI, 0, 0);
 
     mesh.scale.set(0, 0, 0);
 
@@ -504,7 +506,7 @@ function popLetter(mesh, index) {
 
     mesh.position.z = -0.08;
 
-    mesh.rotation.x = THREE.MathUtils.degToRad(-15);
+    mesh.rotation.x = THREE.MathUtils.degToRad(165);
 
     //------------------------------------------------------
     // ボヨヨン
@@ -556,11 +558,11 @@ function popLetter(mesh, index) {
 
         x: [
 
-            THREE.MathUtils.degToRad(-15),
+            THREE.MathUtils.degToRad(165),
 
-            THREE.MathUtils.degToRad(6),
+            THREE.MathUtils.degToRad(186),
 
-            THREE.MathUtils.degToRad(0)
+            THREE.MathUtils.degToRad(180)
 
         ],
 
