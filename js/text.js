@@ -45,9 +45,9 @@ const LETTER_SPACING = 0.17;
 
 const LINE_SPACING = 0.42;
 
-const BEVEL_THICKNESS = 0.015;
+const BEVEL_THICKNESS = 0.006;
 
-const BEVEL_SIZE = 0.010;
+const BEVEL_SIZE = 0.004;
 
 // 1文字ごとの登場ディレイ(ミリ秒)
 const LETTER_DELAY = 80;
@@ -242,13 +242,16 @@ function opentypePathToShapes(otPath) {
    Build All
 ========================================================== */
 
+// 文字ブロック全体を年賀状の上部に寄せるためのオフセット
+const TEXT_TOP_OFFSET = 0.55;
+
 function buildAllText() {
 
     textGroups.happy = buildWord(
 
         "Happy",
 
-        0
+        TEXT_TOP_OFFSET
 
     );
 
@@ -256,7 +259,7 @@ function buildAllText() {
 
         "New",
 
-        -LINE_SPACING
+        TEXT_TOP_OFFSET - LINE_SPACING
 
     );
 
@@ -264,7 +267,7 @@ function buildAllText() {
 
         "Year!",
 
-        -LINE_SPACING * 2
+        TEXT_TOP_OFFSET - LINE_SPACING * 2
 
     );
 

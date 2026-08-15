@@ -28,7 +28,7 @@ let awaitingTap = false;
 // 切り分けるためのもの。本番はここを5にしておく。
 //------------------------------------------------------
 
-const TEST_STAGE = 3;
+const TEST_STAGE = 4;
 
 
 /* ==========================================================
@@ -293,7 +293,7 @@ async function runStagedSequence() {
 
     }
 
-    await wait(1000);
+    await wait(400);
 
     //------------------------------------------------------
     // STAGE 3以上: Happy / New / Year!
@@ -305,19 +305,19 @@ async function runStagedSequence() {
 
     playVoice();
 
-    await wait(900);
+    await wait(600);
 
     showNew();
 
     playKotsuzumi();
 
-    await wait(900);
+    await wait(600);
 
     showYear();
 
     playKotsuzumi();
 
-    await wait(1200);
+    await wait(900);
 
     playTaiko();
 
