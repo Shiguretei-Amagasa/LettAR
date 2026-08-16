@@ -100,6 +100,9 @@
         <!-- タップ吹き出し画像 -->
         <img id="tapImg" src="assets/image/tap.png">
 
+        <!-- 門松3Dモデル -->
+        <a-asset-item id="kadomatsuModel" src="models/scene.gltf"></a-asset-item>
+
     </a-assets>
 
 
@@ -164,6 +167,37 @@
             id="confettiRoot"
 
             position="0 0 0.03">
+
+        </a-entity>
+
+
+        <!--=====================
+           門松(左右)
+        ======================-->
+
+        <a-entity
+
+            id="kadomatsuLeft"
+
+            gltf-model="#kadomatsuModel"
+
+            position="-0.65 -0.3 0.05"
+
+            visible="false">
+
+        </a-entity>
+
+        <a-entity
+
+            id="kadomatsuRight"
+
+            gltf-model="#kadomatsuModel"
+
+            position="0.65 -0.3 0.05"
+
+            scale="-1 1 1"
+
+            visible="false">
 
         </a-entity>
 
