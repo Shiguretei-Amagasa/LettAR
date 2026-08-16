@@ -10,7 +10,7 @@
    Settings
 ========================================================== */
 
-const CONFETTI_COUNT = 70;
+const CONFETTI_COUNT = 90;
 
 const CONFETTI_COLORS = [
 
@@ -115,9 +115,9 @@ function animateConfetti(entity){
 
     const x = random(-0.7,0.7);
 
-    const y = random(0.7,1.2);
+    const y = random(0.6,1.3);
 
-    const z = random(-0.25,0.25);
+    const z = random(-0.7,0.7);
 
     //------------------------------------------------------
     // 飛び出す

@@ -43,8 +43,6 @@ const TEXT_SIZE = 0.22;
 // ここで固定値として管理する)
 const LETTER_SPACING = 0.17;
 
-const LINE_SPACING = 0.42;
-
 const BEVEL_THICKNESS = 0.006;
 
 const BEVEL_SIZE = 0.004;
@@ -245,31 +243,107 @@ function opentypePathToShapes(otPath) {
 // 文字ブロック全体を年賀状の上部に寄せるためのオフセット
 const TEXT_TOP_OFFSET = 0.55;
 
+// 弧の半径(小さいほど強くカーブする)
+const ARC_RADIUS = 1.1;
+
+// スペースの幅(文字と同じ間隔を流用)
+const SPACE_WIDTH = LETTER_SPACING;
+
+let archGroup = null;
+
 function buildAllText() {
 
-    textGroups.happy = buildWord(
+    if (!font) {
 
-        "Happy",
+        console.error("Font Not Loaded");
 
-        TEXT_TOP_OFFSET
+        return;
 
-    );
+    }
 
-    textGroups.new = buildWord(
+    archGroup = new THREE.Group();
 
-        "New",
+    archGroup.position.set(0, TEXT_TOP_OFFSET, 0);
 
-        TEXT_TOP_OFFSET - LINE_SPACING
+    textRoot.object3D.add(archGroup);
 
-    );
+    const PHRASE = "Happy New Year!";
 
-    textGroups.year = buildWord(
+    const chars = Array.from(PHRASE);
 
-        "Year!",
+    //------------------------------------------------------
+    // まず直線上での各文字の位置を計算(中央揃えのため)
+    //------------------------------------------------------
 
-        TEXT_TOP_OFFSET - LINE_SPACING * 2
+    const offsets = [];
 
-    );
+    let cursor = 0;
+
+    chars.forEach((ch) => {
+
+        offsets.push(cursor);
+
+        cursor += (ch === " ") ? SPACE_WIDTH : LETTER_SPACING;
+
+    });
+
+    const totalWidth = cursor - LETTER_SPACING;
+
+    //------------------------------------------------------
+    // 直線上の位置を弧の上の位置・角度に変換して配置
+    //------------------------------------------------------
+
+    const happyLetters = [];
+
+    const newLetters = [];
+
+    const yearLetters = [];
+
+    chars.forEach((ch, i) => {
+
+        if (ch === " ") {
+
+            return;
+
+        }
+
+        const linearX = offsets[i] - totalWidth / 2;
+
+        const angle = linearX / ARC_RADIUS;
+
+        const mesh = createLetter(ch);
+
+        mesh.position.x = ARC_RADIUS * Math.sin(angle);
+
+        mesh.position.y = -ARC_RADIUS * (1 - Math.cos(angle));
+
+        // 弧の接線に合わせて傾ける(基準姿勢のX=180度回転はそのまま維持)
+
+        mesh.rotation.z = -angle;
+
+        archGroup.add(mesh);
+
+        if (i < 5) {
+
+            happyLetters.push(mesh);
+
+        } else if (i < 9) {
+
+            newLetters.push(mesh);
+
+        } else {
+
+            yearLetters.push(mesh);
+
+        }
+
+    });
+
+    textGroups.happy = { letters: happyLetters };
+
+    textGroups.new = { letters: newLetters };
+
+    textGroups.year = { letters: yearLetters };
 
 }
 
@@ -356,57 +430,6 @@ function createLetter(character) {
    1文字ずつ生成し、間隔は自前のLETTER_SPACINGで配置する
 ========================================================== */
 
-function buildWord(word, y) {
-
-    if (!font) {
-
-        console.error("Font Not Loaded");
-
-        return null;
-
-    }
-
-    const group = new THREE.Group();
-
-    group.visible = false;
-
-    group.position.set(0, y, 0);
-
-    let offset = 0;
-
-    const letters = [];
-
-    for (const ch of word) {
-
-        const mesh = createLetter(ch);
-
-        mesh.position.x = offset;
-
-        offset += LETTER_SPACING;
-
-        group.add(mesh);
-
-        letters.push(mesh);
-
-    }
-
-    // 中央揃え
-
-    const width = offset - LETTER_SPACING;
-
-    group.children.forEach((mesh) => {
-
-        mesh.position.x -= width / 2;
-
-    });
-
-    textRoot.object3D.add(group);
-
-    return { group: group, letters: letters };
-
-}
-
-
 /* ==========================================================
    Reset
 ========================================================== */
@@ -418,8 +441,6 @@ function resetWord(word) {
         return;
 
     }
-
-    word.group.visible = false;
 
     word.letters.forEach((mesh) => {
 
@@ -489,8 +510,6 @@ function playWord(word) {
         return;
 
     }
-
-    word.group.visible = true;
 
     word.letters.forEach((mesh, index) => {
 
@@ -650,13 +669,15 @@ function disposeText() {
 
         });
 
-        if (word.group.parent) {
-
-            word.group.parent.remove(word.group);
-
-        }
-
     });
+
+    if (archGroup && archGroup.parent) {
+
+        archGroup.parent.remove(archGroup);
+
+    }
+
+    archGroup = null;
 
 }
 

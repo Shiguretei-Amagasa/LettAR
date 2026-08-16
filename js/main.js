@@ -28,7 +28,7 @@ let awaitingTap = false;
 // 切り分けるためのもの。本番はここを5にしておく。
 //------------------------------------------------------
 
-const TEST_STAGE = 4;
+const TEST_STAGE = 5;
 
 
 /* ==========================================================
@@ -406,7 +406,7 @@ function showKadomatsu() {
 
         targets:right.object3D.scale,
 
-        x:0.12,
+        x:-0.12,
 
         y:0.12,
 
