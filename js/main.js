@@ -390,11 +390,11 @@ function showKadomatsu() {
 
         targets:left.object3D.scale,
 
-        x:0.12,
+        x:0.6,
 
-        y:0.12,
+        y:0.6,
 
-        z:0.12,
+        z:0.6,
 
         duration:500,
 
@@ -406,11 +406,11 @@ function showKadomatsu() {
 
         targets:right.object3D.scale,
 
-        x:-0.12,
+        x:-0.6,
 
-        y:0.12,
+        y:0.6,
 
-        z:0.12,
+        z:0.6,
 
         duration:500,
 

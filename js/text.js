@@ -231,7 +231,7 @@ function opentypePathToShapes(otPath) {
 
     });
 
-    return shapePath.toShapes(true);
+    return shapePath.toShapes(false);
 
 }
 
@@ -244,7 +244,7 @@ function opentypePathToShapes(otPath) {
 const TEXT_TOP_OFFSET = 0.55;
 
 // 弧の半径(小さいほど強くカーブする)
-const ARC_RADIUS = 1.1;
+const ARC_RADIUS = 4.0;
 
 // スペースの幅(文字と同じ間隔を流用)
 const SPACE_WIDTH = LETTER_SPACING;
@@ -264,6 +264,9 @@ function buildAllText() {
     archGroup = new THREE.Group();
 
     archGroup.position.set(0, TEXT_TOP_OFFSET, 0);
+
+    // タップ吹き出しと同様、カード面に対して少し起こす
+    archGroup.rotation.x = THREE.MathUtils.degToRad(40);
 
     textRoot.object3D.add(archGroup);
 
