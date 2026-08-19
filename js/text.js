@@ -34,18 +34,18 @@ const TEXT_METALNESS = 1.0;
 
 const TEXT_ROUGHNESS = 0.22;
 
-const TEXT_DEPTH = 0.18;
+const TEXT_DEPTH = 0.08;
 
 // フォントサイズ = シーン上のメートル値をそのまま使う
-const TEXT_SIZE = 0.22;
+const TEXT_SIZE = 0.10;
 
 // 文字と文字の間隔(フォント内部の送り幅データに頼らず、
 // ここで固定値として管理する)
-const LETTER_SPACING = 0.17;
+const LETTER_SPACING = 0.077;
 
-const BEVEL_THICKNESS = 0.006;
+const BEVEL_THICKNESS = 0.003;
 
-const BEVEL_SIZE = 0.004;
+const BEVEL_SIZE = 0.002;
 
 // 1文字ごとの登場ディレイ(ミリ秒)
 const LETTER_DELAY = 80;
@@ -244,7 +244,7 @@ function opentypePathToShapes(otPath) {
 const TEXT_TOP_OFFSET = 0.55;
 
 // 弧の半径(小さいほど強くカーブする)
-const ARC_RADIUS = 4.0;
+const ARC_RADIUS = 2.2;
 
 // スペースの幅(文字と同じ間隔を流用)
 const SPACE_WIDTH = LETTER_SPACING;

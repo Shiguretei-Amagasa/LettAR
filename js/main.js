@@ -7,6 +7,48 @@
 "use strict";
 
 /* ==========================================================
+   world-upright コンポーネント
+
+   親(年賀状=markerRoot)がどんな向きに傾いても、
+   このコンポーネントを付けたエンティティの「向き」だけは
+   常にワールド基準で固定される(位置は親に追従したまま)。
+
+   毎フレーム、親の現在のワールド回転の逆回転を
+   自分のローカル回転として設定することで実現している。
+========================================================== */
+
+AFRAME.registerComponent("world-upright", {
+
+    init: function () {
+
+        this.parentWorldQuat = new THREE.Quaternion();
+
+    },
+
+    tick: function () {
+
+        const parent = this.el.object3D.parent;
+
+        if (!parent) {
+
+            return;
+
+        }
+
+        parent.getWorldQuaternion(this.parentWorldQuat);
+
+        this.el.object3D.quaternion.copy(
+
+            this.parentWorldQuat.clone().invert()
+
+        );
+
+    }
+
+});
+
+
+/* ==========================================================
    Global
 ========================================================== */
 
