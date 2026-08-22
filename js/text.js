@@ -244,7 +244,7 @@ function opentypePathToShapes(otPath) {
 const TEXT_TOP_OFFSET = 0.55;
 
 // 弧の半径(小さいほど強くカーブする)
-const ARC_RADIUS = 2.2;
+const ARC_RADIUS = 0.65;
 
 // スペースの幅(文字と同じ間隔を流用)
 const SPACE_WIDTH = LETTER_SPACING;
