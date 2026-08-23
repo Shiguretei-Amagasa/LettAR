@@ -30,9 +30,9 @@ const textGroups = {
 
 const TEXT_COLOR = 0xf5d46b;
 
-const TEXT_METALNESS = 1.0;
+const TEXT_METALNESS = 0.6;
 
-const TEXT_ROUGHNESS = 0.22;
+const TEXT_ROUGHNESS = 0.32;
 
 const TEXT_DEPTH = 0.08;
 
@@ -66,9 +66,9 @@ const baseMaterial = new THREE.MeshStandardMaterial({
 
     envMapIntensity: 1.6,
 
-    emissive: 0x3d2d00,
+    emissive: 0x5c4400,
 
-    emissiveIntensity: 0.12
+    emissiveIntensity: 0.35
 
 });
 
@@ -244,7 +244,7 @@ function opentypePathToShapes(otPath) {
 const TEXT_TOP_OFFSET = 0.55;
 
 // 弧の半径(小さいほど強くカーブする)
-const ARC_RADIUS = 0.65;
+const ARC_RADIUS = 1.0;
 
 // スペースの幅(文字と同じ間隔を流用)
 const SPACE_WIDTH = LETTER_SPACING;
