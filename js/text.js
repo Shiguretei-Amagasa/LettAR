@@ -320,9 +320,12 @@ function buildAllText() {
 
         mesh.position.y = -ARC_RADIUS * (1 - Math.cos(angle));
 
-        // 弧の接線に合わせて傾ける(基準姿勢のX=180度回転はそのまま維持)
+        // 弧の接線に合わせて傾ける
+        // (rotation.zへの直接代入だと、基準姿勢のX=180度回転との
+        //  組み合わせで向きが分かりにくくなるため、現在の向きに対する
+        //  相対回転(rotateZ)で追加する)
 
-        mesh.rotation.z = -angle;
+        mesh.rotateZ(angle);
 
         archGroup.add(mesh);
 
