@@ -112,6 +112,10 @@
         <!-- 門松3Dモデル -->
         <a-asset-item id="kadomatsuModel" src="models/scene.gltf"></a-asset-item>
 
+        <!-- 紙吹雪のタイミングで起き上がる画像 -->
+        <img id="pics01Img" src="assets/image/pics01.png">
+        <img id="pics02Img" src="assets/image/pics02.png">
+
     </a-assets>
 
 
@@ -181,6 +185,52 @@
 
 
         <!--=====================
+           紙吹雪のタイミングで起き上がる画像
+           (門松より奥(小さいZ)に置き、門松が手前に来るようにする)
+        ======================-->
+
+        <a-entity id="picsRoot">
+
+            <a-plane
+
+                id="pics01"
+
+                width="0.4"
+
+                height="0.4"
+
+                position="-0.3 -0.5 0.02"
+
+                material="src:#pics01Img; transparent:true; shader:flat;"
+
+                visible="false"
+
+                scale="0 0 0">
+
+            </a-plane>
+
+            <a-plane
+
+                id="pics02"
+
+                width="0.4"
+
+                height="0.4"
+
+                position="0.3 -0.5 0.02"
+
+                material="src:#pics02Img; transparent:true; shader:flat;"
+
+                visible="false"
+
+                scale="0 0 0">
+
+            </a-plane>
+
+        </a-entity>
+
+
+        <!--=====================
            門松(左右)
         ======================-->
 
@@ -190,7 +240,7 @@
 
             gltf-model="#kadomatsuModel"
 
-            world-upright
+            world-upright="correction: 0 0 90"
 
             position="-0.65 -0.3 0.05"
 
@@ -204,7 +254,7 @@
 
             gltf-model="#kadomatsuModel"
 
-            world-upright
+            world-upright="correction: 0 0 -90"
 
             position="0.65 -0.3 0.05"
 
