@@ -436,7 +436,7 @@ async function runStagedSequence() {
 
 function showPics() {
 
-    const RISE_DISTANCE = 0.15;
+    const RISE_DISTANCE = 0.3;
 
     ["#pics01", "#pics02"].forEach((selector, index) => {
 
@@ -490,7 +490,7 @@ function showPics() {
 
                 baseY - RISE_DISTANCE,
 
-                baseY + RISE_DISTANCE * 0.35,
+                baseY + RISE_DISTANCE * 0.45,
 
                 baseY
 
