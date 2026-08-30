@@ -19,9 +19,29 @@
 
 AFRAME.registerComponent("world-upright", {
 
+    schema: {
+
+        correction: { type: "vec3", default: { x: 0, y: 0, z: 0 } }
+
+    },
+
     init: function () {
 
         this.parentWorldQuat = new THREE.Quaternion();
+
+        this.correctionQuat = new THREE.Quaternion().setFromEuler(
+
+            new THREE.Euler(
+
+                THREE.MathUtils.degToRad(this.data.correction.x),
+
+                THREE.MathUtils.degToRad(this.data.correction.y),
+
+                THREE.MathUtils.degToRad(this.data.correction.z)
+
+            )
+
+        );
 
     },
 
@@ -37,11 +57,13 @@ AFRAME.registerComponent("world-upright", {
 
         parent.getWorldQuaternion(this.parentWorldQuat);
 
-        this.el.object3D.quaternion.copy(
+        this.el.object3D.quaternion
 
-            this.parentWorldQuat.clone().invert()
+            .copy(this.parentWorldQuat)
 
-        );
+            .invert()
+
+            .multiply(this.correctionQuat);
 
     }
 
@@ -127,6 +149,8 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         hideTapPrompt();
+
+        hidePics();
 
         animationStarted = false;
 
@@ -377,6 +401,8 @@ async function runStagedSequence() {
 
     startConfetti();
 
+    showPics();
+
     if (TEST_STAGE <= 4) {
 
         return;
@@ -400,6 +426,108 @@ async function runStagedSequence() {
         showPerson();
 
     }
+
+}
+
+
+/* ==========================================================
+   Pics(紙吹雪のタイミングで起き上がる画像)
+========================================================== */
+
+function showPics() {
+
+    const RISE_DISTANCE = 0.15;
+
+    ["#pics01", "#pics02"].forEach((selector, index) => {
+
+        const el = document.querySelector(selector);
+
+        if (!el) {
+
+            return;
+
+        }
+
+        el.setAttribute("visible", true);
+
+        const baseY = el.object3D.position.y;
+
+        el.object3D.scale.set(0, 0, 0);
+
+        el.object3D.position.y = baseY - RISE_DISTANCE;
+
+        //------------------------------------------------------
+        // ボヨヨンと拡大
+        //------------------------------------------------------
+
+        anime({
+
+            targets: el.object3D.scale,
+
+            x: [0, 1.15, 0.92, 1.04, 1],
+
+            y: [0, 1.15, 0.92, 1.04, 1],
+
+            z: [0, 1.15, 0.92, 1.04, 1],
+
+            delay: index * 150,
+
+            duration: 700,
+
+            easing: "easeOutElastic(1,.6)"
+
+        });
+
+        //------------------------------------------------------
+        // 起き上がる(停止位置より上まで行き過ぎてから戻る)
+        //------------------------------------------------------
+
+        anime({
+
+            targets: el.object3D.position,
+
+            y: [
+
+                baseY - RISE_DISTANCE,
+
+                baseY + RISE_DISTANCE * 0.35,
+
+                baseY
+
+            ],
+
+            delay: index * 150,
+
+            duration: 700,
+
+            easing: "easeOutBack"
+
+        });
+
+    });
+
+}
+
+
+function hidePics() {
+
+    ["#pics01", "#pics02"].forEach((selector) => {
+
+        const el = document.querySelector(selector);
+
+        if (!el) {
+
+            return;
+
+        }
+
+        el.setAttribute("visible", false);
+
+        el.object3D.scale.set(0, 0, 0);
+
+        el.object3D.position.y = -0.5;
+
+    });
 
 }
 

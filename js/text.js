@@ -30,9 +30,9 @@ const textGroups = {
 
 const TEXT_COLOR = 0xf5d46b;
 
-const TEXT_METALNESS = 0.6;
+const TEXT_METALNESS = 0.85;
 
-const TEXT_ROUGHNESS = 0.32;
+const TEXT_ROUGHNESS = 0.18;
 
 const TEXT_DEPTH = 0.08;
 
