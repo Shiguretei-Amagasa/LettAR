@@ -436,9 +436,7 @@ async function runStagedSequence() {
 
 function showPics() {
 
-    const RISE_DISTANCE = 0.3;
-
-    ["#pics01", "#pics02"].forEach((selector, index) => {
+    ["#pics01Anchor", "#pics02Anchor"].forEach((selector, index) => {
 
         const el = document.querySelector(selector);
 
@@ -450,14 +448,14 @@ function showPics() {
 
         el.setAttribute("visible", true);
 
-        const baseY = el.object3D.position.y;
-
         el.object3D.scale.set(0, 0, 0);
 
-        el.object3D.position.y = baseY - RISE_DISTANCE;
+        // カードに寝た状態(0度)からスタート
+
+        el.object3D.rotation.x = 0;
 
         //------------------------------------------------------
-        // ボヨヨンと拡大
+        // ボヨヨンと拡大(アンカー=下端を基点に広がる)
         //------------------------------------------------------
 
         anime({
@@ -479,20 +477,20 @@ function showPics() {
         });
 
         //------------------------------------------------------
-        // 起き上がる(停止位置より上まで行き過ぎてから戻る)
+        // 起き上がる(下端を軸に、垂直より少し行き過ぎてから戻る)
         //------------------------------------------------------
 
         anime({
 
-            targets: el.object3D.position,
+            targets: el.object3D.rotation,
 
-            y: [
+            x: [
 
-                baseY - RISE_DISTANCE,
+                0,
 
-                baseY + RISE_DISTANCE * 0.45,
+                THREE.MathUtils.degToRad(102),
 
-                baseY
+                THREE.MathUtils.degToRad(90)
 
             ],
 
@@ -511,7 +509,7 @@ function showPics() {
 
 function hidePics() {
 
-    ["#pics01", "#pics02"].forEach((selector) => {
+    ["#pics01Anchor", "#pics02Anchor"].forEach((selector) => {
 
         const el = document.querySelector(selector);
 
@@ -525,7 +523,7 @@ function hidePics() {
 
         el.object3D.scale.set(0, 0, 0);
 
-        el.object3D.position.y = -0.5;
+        el.object3D.rotation.x = 0;
 
     });
 

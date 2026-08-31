@@ -28,7 +28,7 @@ const textGroups = {
 
 };
 
-const TEXT_COLOR = 0xf5d46b;
+const TEXT_COLOR = 0xd4af37;
 
 const TEXT_METALNESS = 0.85;
 
