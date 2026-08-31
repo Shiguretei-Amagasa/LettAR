@@ -83,6 +83,8 @@
 
     <a-light type="directional" color="#fff" intensity="0.9" position="0.5 1 1"></a-light>
 
+    <a-light type="directional" color="#fff8e0" intensity="0.6" position="-0.8 0.4 -0.6"></a-light>
+
     <!--=========================
             Assets
     ==========================-->
@@ -191,45 +193,68 @@
 
         <a-entity id="picsRoot">
 
-            <a-plane
+            <!--
+                アンカー(蝶番)の位置=画像の一番下。
+                画像本体はアンカーからheightの半分だけ上にずらして配置することで、
+                画像の下端がアンカーの原点と一致するようにしている。
+                アニメーションはアンカー側のrotation/scaleに対して行う。
+            -->
 
-                id="pics01"
+            <a-entity
 
-                width="0.5"
+                id="pics01Anchor"
 
-                height="0.5"
+                position="-0.35 -0.5 0.01"
 
-                position="-0.35 -0.5 0.04"
-
-                rotation="90 0 0"
-
-                material="src:#pics01Img; transparent:true; shader:flat;"
-
-                visible="false"
-
-                scale="0 0 0">
-
-            </a-plane>
-
-            <a-plane
-
-                id="pics02"
-
-                width="0.5"
-
-                height="0.5"
-
-                position="0.35 -0.5 0.04"
-
-                rotation="90 0 0"
-
-                material="src:#pics02Img; transparent:true; shader:flat;"
+                rotation="0 0 0"
 
                 visible="false"
 
                 scale="0 0 0">
 
-            </a-plane>
+                <a-plane
+
+                    id="pics01"
+
+                    width="0.5"
+
+                    height="0.5"
+
+                    position="0 0.25 0"
+
+                    material="src:#pics01Img; transparent:true; shader:flat;">
+
+                </a-plane>
+
+            </a-entity>
+
+            <a-entity
+
+                id="pics02Anchor"
+
+                position="0.35 -0.5 0.01"
+
+                rotation="0 0 0"
+
+                visible="false"
+
+                scale="0 0 0">
+
+                <a-plane
+
+                    id="pics02"
+
+                    width="0.5"
+
+                    height="0.5"
+
+                    position="0 0.25 0"
+
+                    material="src:#pics02Img; transparent:true; shader:flat;">
+
+                </a-plane>
+
+            </a-entity>
 
         </a-entity>
 
@@ -244,7 +269,7 @@
 
             gltf-model="#kadomatsuModel"
 
-            world-upright="correction: 0 0 90"
+            world-upright="correction: 0 0 -90"
 
             position="-0.65 -0.3 0.05"
 
