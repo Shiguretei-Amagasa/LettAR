@@ -22,6 +22,29 @@
    自分のローカル回転として設定することで実現している。
 ========================================================== */
 
+/* ==========================================================
+   ★デバッグ用: 軸の可視化コンポーネント
+   赤=X軸、緑=Y軸、青=Z軸の矢印を表示する。
+   原因特定できたら削除してよい。
+========================================================== */
+
+AFRAME.registerComponent("debug-axes", {
+
+    init: function () {
+
+        const size = this.data || 0.5;
+
+        const axes = new THREE.AxesHelper(size);
+
+        this.el.object3D.add(axes);
+
+    },
+
+    schema: { default: 0.5 }
+
+});
+
+
 AFRAME.registerComponent("world-upright", {
 
     schema: {
