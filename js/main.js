@@ -1,7 +1,12 @@
 /* ==========================================================
    Happy New Year AR
    main.js
-   Version 2
+   Version 3 (MindAR移行後・段階テスト機能つき)
+
+   ・TEST_STAGE(0〜5)による段階的な演出確認機能
+   ・タップ吹き出し(音声再生許可を兼ねる)
+   ・world-upright(門松をカードの傾きから独立させる)
+   ・pics(紙吹雪タイミングで起き上がる画像)
 ========================================================== */
 
 "use strict";
@@ -151,6 +156,8 @@ window.addEventListener("DOMContentLoaded", () => {
         hideTapPrompt();
 
         hidePics();
+
+        hideKadomatsu();
 
         animationStarted = false;
 
@@ -488,9 +495,9 @@ function showPics() {
 
                 0,
 
-                THREE.MathUtils.degToRad(102),
+                THREE.MathUtils.degToRad(75),
 
-                THREE.MathUtils.degToRad(90)
+                THREE.MathUtils.degToRad(65)
 
             ],
 
@@ -585,6 +592,31 @@ function showKadomatsu() {
         easing:"easeOutElastic(1,.6)"
 
     });
+
+}
+
+
+function hideKadomatsu() {
+
+    const left = document.querySelector("#kadomatsuLeft");
+
+    const right = document.querySelector("#kadomatsuRight");
+
+    if (left) {
+
+        left.setAttribute("visible", false);
+
+        left.object3D.scale.set(0, 0, 0);
+
+    }
+
+    if (right) {
+
+        right.setAttribute("visible", false);
+
+        right.object3D.scale.set(0, 0, 0);
+
+    }
 
 }
 
