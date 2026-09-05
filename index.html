@@ -302,6 +302,54 @@
 
 
         <!--=====================
+           ★検証用: 回転候補を3つ同時表示
+           (正解が分かったら丸ごと削除する)
+        ======================-->
+
+        <a-entity
+
+            gltf-model="#kadomatsuModel"
+
+            world-upright="correction: 90 0 0"
+
+            position="-1.3 -0.05 0.12"
+
+            scale="0.6 0.6 0.6"
+
+            visible="true">
+
+        </a-entity>
+
+        <a-entity
+
+            gltf-model="#kadomatsuModel"
+
+            world-upright="correction: 0 0 90"
+
+            position="-1.9 -0.05 0.12"
+
+            scale="0.6 0.6 0.6"
+
+            visible="true">
+
+        </a-entity>
+
+        <a-entity
+
+            gltf-model="#kadomatsuModel"
+
+            world-upright="correction: 0 0 0"
+
+            position="-2.5 -0.05 0.12"
+
+            scale="0.6 0.6 0.6"
+
+            visible="true">
+
+        </a-entity>
+
+
+        <!--=====================
            タップ吹き出し
            (targetFound後に表示。
             画面タップで音声を解放しつつ演出開始)
