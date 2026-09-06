@@ -588,15 +588,15 @@ function showKadomatsu() {
 
         targets:left.object3D.scale,
 
-        x:0.6,
+        x:0.8,
 
-        y:0.6,
+        y:0.8,
 
-        z:0.6,
+        z:0.8,
 
         duration:500,
 
-        easing:"easeOutElastic(1,.6)"
+        easing:"easeOutElastic(1,.8)"
 
     });
 
@@ -604,15 +604,15 @@ function showKadomatsu() {
 
         targets:right.object3D.scale,
 
-        x:-0.6,
+        x:-0.8,
 
-        y:0.6,
+        y:0.8,
 
-        z:0.6,
+        z:0.8,
 
         duration:500,
 
-        easing:"easeOutElastic(1,.6)"
+        easing:"easeOutElastic(1,.8)"
 
     });
 
