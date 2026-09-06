@@ -1,102 +1,10 @@
 /* ==========================================================
    Happy New Year AR
    main.js
-   Version 3 (MindAR移行後・段階テスト機能つき)
-
-   ・TEST_STAGE(0〜5)による段階的な演出確認機能
-   ・タップ吹き出し(音声再生許可を兼ねる)
-   ・world-upright(門松をカードの傾きから独立させる)
-   ・pics(紙吹雪タイミングで起き上がる画像)
+   Version 2
 ========================================================== */
 
 "use strict";
-
-/* ==========================================================
-   world-upright コンポーネント
-
-   親(年賀状=markerRoot)がどんな向きに傾いても、
-   このコンポーネントを付けたエンティティの「向き」だけは
-   常にワールド基準で固定される(位置は親に追従したまま)。
-
-   毎フレーム、親の現在のワールド回転の逆回転を
-   自分のローカル回転として設定することで実現している。
-========================================================== */
-
-/* ==========================================================
-   ★デバッグ用: 軸の可視化コンポーネント
-   赤=X軸、緑=Y軸、青=Z軸の矢印を表示する。
-   原因特定できたら削除してよい。
-========================================================== */
-
-AFRAME.registerComponent("debug-axes", {
-
-    init: function () {
-
-        const size = this.data || 0.5;
-
-        const axes = new THREE.AxesHelper(size);
-
-        this.el.object3D.add(axes);
-
-    },
-
-    schema: { default: 0.5 }
-
-});
-
-
-AFRAME.registerComponent("world-upright", {
-
-    schema: {
-
-        correction: { type: "vec3", default: { x: 0, y: 0, z: 0 } }
-
-    },
-
-    init: function () {
-
-        this.parentWorldQuat = new THREE.Quaternion();
-
-        this.correctionQuat = new THREE.Quaternion().setFromEuler(
-
-            new THREE.Euler(
-
-                THREE.MathUtils.degToRad(this.data.correction.x),
-
-                THREE.MathUtils.degToRad(this.data.correction.y),
-
-                THREE.MathUtils.degToRad(this.data.correction.z)
-
-            )
-
-        );
-
-    },
-
-    tick: function () {
-
-        const parent = this.el.object3D.parent;
-
-        if (!parent) {
-
-            return;
-
-        }
-
-        parent.getWorldQuaternion(this.parentWorldQuat);
-
-        this.el.object3D.quaternion
-
-            .copy(this.parentWorldQuat)
-
-            .invert()
-
-            .multiply(this.correctionQuat);
-
-    }
-
-});
-
 
 /* ==========================================================
    Global
@@ -120,7 +28,7 @@ let awaitingTap = false;
 // 切り分けるためのもの。本番はここを5にしておく。
 //------------------------------------------------------
 
-const TEST_STAGE = 5;
+const TEST_STAGE = 4;
 
 
 /* ==========================================================
@@ -177,10 +85,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         hideTapPrompt();
-
-        hidePics();
-
-        hideKadomatsu();
 
         animationStarted = false;
 
@@ -431,8 +335,6 @@ async function runStagedSequence() {
 
     startConfetti();
 
-    showPics();
-
     if (TEST_STAGE <= 4) {
 
         return;
@@ -456,106 +358,6 @@ async function runStagedSequence() {
         showPerson();
 
     }
-
-}
-
-
-/* ==========================================================
-   Pics(紙吹雪のタイミングで起き上がる画像)
-========================================================== */
-
-function showPics() {
-
-    ["#pics01Anchor", "#pics02Anchor"].forEach((selector, index) => {
-
-        const el = document.querySelector(selector);
-
-        if (!el) {
-
-            return;
-
-        }
-
-        el.setAttribute("visible", true);
-
-        el.object3D.scale.set(0, 0, 0);
-
-        // カードに寝た状態(0度)からスタート
-
-        el.object3D.rotation.x = 0;
-
-        //------------------------------------------------------
-        // ボヨヨンと拡大(アンカー=下端を基点に広がる)
-        //------------------------------------------------------
-
-        anime({
-
-            targets: el.object3D.scale,
-
-            x: [0, 1.15, 0.92, 1.04, 1],
-
-            y: [0, 1.15, 0.92, 1.04, 1],
-
-            z: [0, 1.15, 0.92, 1.04, 1],
-
-            delay: index * 150,
-
-            duration: 700,
-
-            easing: "easeOutElastic(1,.6)"
-
-        });
-
-        //------------------------------------------------------
-        // 起き上がる(下端を軸に、垂直より少し行き過ぎてから戻る)
-        //------------------------------------------------------
-
-        anime({
-
-            targets: el.object3D.rotation,
-
-            x: [
-
-                0,
-
-                THREE.MathUtils.degToRad(75),
-
-                THREE.MathUtils.degToRad(65)
-
-            ],
-
-            delay: index * 150,
-
-            duration: 700,
-
-            easing: "easeOutBack"
-
-        });
-
-    });
-
-}
-
-
-function hidePics() {
-
-    ["#pics01Anchor", "#pics02Anchor"].forEach((selector) => {
-
-        const el = document.querySelector(selector);
-
-        if (!el) {
-
-            return;
-
-        }
-
-        el.setAttribute("visible", false);
-
-        el.object3D.scale.set(0, 0, 0);
-
-        el.object3D.rotation.x = 0;
-
-    });
 
 }
 
@@ -588,11 +390,11 @@ function showKadomatsu() {
 
         targets:left.object3D.scale,
 
-        x:0.6,
+        x:0.12,
 
-        y:0.6,
+        y:0.12,
 
-        z:0.6,
+        z:0.12,
 
         duration:500,
 
@@ -604,42 +406,17 @@ function showKadomatsu() {
 
         targets:right.object3D.scale,
 
-        x:-0.6,
+        x:0.12,
 
-        y:0.6,
+        y:0.12,
 
-        z:0.6,
+        z:0.12,
 
         duration:500,
 
         easing:"easeOutElastic(1,.6)"
 
     });
-
-}
-
-
-function hideKadomatsu() {
-
-    const left = document.querySelector("#kadomatsuLeft");
-
-    const right = document.querySelector("#kadomatsuRight");
-
-    if (left) {
-
-        left.setAttribute("visible", false);
-
-        left.object3D.scale.set(0, 0, 0);
-
-    }
-
-    if (right) {
-
-        right.setAttribute("visible", false);
-
-        right.object3D.scale.set(0, 0, 0);
-
-    }
 
 }
 
