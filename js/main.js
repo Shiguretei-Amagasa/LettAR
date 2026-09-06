@@ -520,11 +520,7 @@ function showPics() {
 
                 THREE.MathUtils.degToRad(75),
 
-                THREE.MathUtils.degToRad(15),
-
-                THREE.MathUtils.degToRad(65),
-
-                THREE.MathUtils.degToRad(45)
+                THREE.MathUtils.degToRad(65)
 
             ],
 
