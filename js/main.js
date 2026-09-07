@@ -1,102 +1,15 @@
 /* ==========================================================
    Happy New Year AR
    main.js
-   Version 3 (MindAR移行後・段階テスト機能つき)
+   Version 4 (門松をmarkerRoot相対の静的回転に変更。
+   スマホの縦横に影響されないようworld-uprightを廃止)
 
    ・TEST_STAGE(0〜5)による段階的な演出確認機能
    ・タップ吹き出し(音声再生許可を兼ねる)
-   ・world-upright(門松をカードの傾きから独立させる)
    ・pics(紙吹雪タイミングで起き上がる画像)
 ========================================================== */
 
 "use strict";
-
-/* ==========================================================
-   world-upright コンポーネント
-
-   親(年賀状=markerRoot)がどんな向きに傾いても、
-   このコンポーネントを付けたエンティティの「向き」だけは
-   常にワールド基準で固定される(位置は親に追従したまま)。
-
-   毎フレーム、親の現在のワールド回転の逆回転を
-   自分のローカル回転として設定することで実現している。
-========================================================== */
-
-/* ==========================================================
-   ★デバッグ用: 軸の可視化コンポーネント
-   赤=X軸、緑=Y軸、青=Z軸の矢印を表示する。
-   原因特定できたら削除してよい。
-========================================================== */
-
-AFRAME.registerComponent("debug-axes", {
-
-    init: function () {
-
-        const size = this.data || 0.5;
-
-        const axes = new THREE.AxesHelper(size);
-
-        this.el.object3D.add(axes);
-
-    },
-
-    schema: { default: 0.5 }
-
-});
-
-
-AFRAME.registerComponent("world-upright", {
-
-    schema: {
-
-        correction: { type: "vec3", default: { x: 0, y: 0, z: 0 } }
-
-    },
-
-    init: function () {
-
-        this.parentWorldQuat = new THREE.Quaternion();
-
-        this.correctionQuat = new THREE.Quaternion().setFromEuler(
-
-            new THREE.Euler(
-
-                THREE.MathUtils.degToRad(this.data.correction.x),
-
-                THREE.MathUtils.degToRad(this.data.correction.y),
-
-                THREE.MathUtils.degToRad(this.data.correction.z)
-
-            )
-
-        );
-
-    },
-
-    tick: function () {
-
-        const parent = this.el.object3D.parent;
-
-        if (!parent) {
-
-            return;
-
-        }
-
-        parent.getWorldQuaternion(this.parentWorldQuat);
-
-        this.el.object3D.quaternion
-
-            .copy(this.parentWorldQuat)
-
-            .invert()
-
-            .multiply(this.correctionQuat);
-
-    }
-
-});
-
 
 /* ==========================================================
    Global
